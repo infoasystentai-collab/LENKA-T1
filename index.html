@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>TEST DLA LENKI - 01</title>
+<title>TEST DLA LENKI - 02</title>
 <style>
 body{
   font-family: Arial, sans-serif;
@@ -41,84 +41,88 @@ button{
 #result,#parentPanel{margin-top:20px;padding:15px;border-radius:12px;}
 #result{background:#e6fff0;}
 #parentPanel{background:#f0f0ff;display:none;}
+.star{font-size:26px;color:#ffcc00}
 </style>
 </head>
 <body>
 <div class="container">
-<h1>TEST DLA LENKI - 01</h1>
+<h1>⭐ TEST DLA LENKI – 02 ⭐</h1>
 <div id="timer">Czas: 15:00</div>
 
 <form id="quiz">
-<div class="question" data-answer="1">
-1. Ile to 5 + 4?
-<label><input type="radio" name="q1" value="0">7</label>
-<label><input type="radio" name="q1" value="1">9</label>
-<label><input type="radio" name="q1" value="2">10</label>
-</div>
+<!-- 20 PYTAŃ – łatwe -->
+<script>
+const questions = [
+["Ile to 7 + 2?",["8","9","10"],1],
+["Ile to 12 − 5?",["7","6","8"],0],
+["Które zwierzę lata?",["pies","kot","ptak"],2],
+["Ile nóg ma pies?",["2","4","6"],1],
+["Jaki kolor ma trawa?",["zielony","niebieski","czerwony"],0],
+["Ile to 5 × 2?",["8","9","10"],2],
+["Która liczba jest większa?",["3","5","4"],1],
+["Co pijemy gdy jesteśmy spragnieni?",["wodę","piasek","kamień"],0],
+["Ile to 10 + 10?",["15","20","25"],1],
+["Która pora roku jest zimna?",["lato","wiosna","zima"],2],
+["Jakie zwierzę daje jajka?",["kura","pies","koń"],0],
+["Ile to 6 + 6?",["10","12","14"],1],
+["Który kształt ma 4 boki?",["trójkąt","koło","kwadrat"],2],
+["Dzień po sobocie to:",["niedziela","piątek","czwartek"],0],
+["Ile palców mamy razem u rąk?",["8","10","12"],1],
+["Co świeci na niebie w dzień?",["księżyc","gwiazdy","słońce"],2],
+["Ile to 4 + 4?",["8","7","9"],0],
+["Miesiąc świąt Bożego Narodzenia:",["listopad","grudzień","styczeń"],1],
+["Do pisania używamy:",["ołówek","but","łyżka"],0],
+["Ile to 2 × 4?",["6","10","8"],2]
+];
 
-<div class="question" data-answer="2">
-2. Które zwierzę mówi „miau”?
-<label><input type="radio" name="q2" value="0">pies</label>
-<label><input type="radio" name="q2" value="1">krowa</label>
-<label><input type="radio" name="q2" value="2">kot</label>
-</div>
-
-<div class="question" data-answer="0">
-3. Ile dni ma tydzień?
-<label><input type="radio" name="q3" value="0">7</label>
-<label><input type="radio" name="q3" value="1">5</label>
-<label><input type="radio" name="q3" value="2">10</label>
-</div>
-
-<div class="question" data-answer="1">
-4. Stolica Polski to:
-<label><input type="radio" name="q4" value="0">Kraków</label>
-<label><input type="radio" name="q4" value="1">Warszawa</label>
-<label><input type="radio" name="q4" value="2">Gdańsk</label>
-</div>
-
-<div class="question" data-answer="2">
-5. Który kształt to koło?
-<label><input type="radio" name="q5" value="0">trójkąt</label>
-<label><input type="radio" name="q5" value="1">kwadrat</label>
-<label><input type="radio" name="q5" value="2">koło</label>
-</div>
+document.write(questions.map((q,i)=>`
+<div class="question" data-answer="${q[2]}">
+${i+1}. ${q[0]}
+${q[1].map((a,j)=>`<label><input type="radio" name="q${i}" value="${j}"> ${a}</label>`).join("")}
+</div>`).join(""));
+</script>
 
 <button type="button" onclick="finish()">Zakończ test</button>
 </form>
 
 <div id="result"></div>
+
 <div id="parentPanel">
-<h3>Panel dla rodzica</h3>
+<h3>🔐 Panel rodzica</h3>
+<input type="password" id="pass" placeholder="Hasło: lenka">
+<button onclick="showParent()">Pokaż</button>
 <div id="parentInfo"></div>
 </div>
 </div>
 
 <script>
-let time=15*60;
-const timer=document.getElementById("timer");
-const interval=setInterval(()=>{
-  time--;
-  let m=Math.floor(time/60);
-  let s=time%60;
-  timer.textContent="Czas: "+m+":"+(s<10?"0"+s:s);
-  if(time<=0){clearInterval(interval);finish();}
+let time=900;
+const t=setInterval(()=>{
+ time--;
+ document.getElementById("timer").innerText="Czas: "+Math.floor(time/60)+":"+String(time%60).padStart(2,"0");
+ if(time<=0){clearInterval(t);finish();}
 },1000);
 
 function finish(){
-  clearInterval(interval);
-  const qs=document.querySelectorAll(".question");
-  let score=0;
-  qs.forEach((q,i)=>{
-    const correct=q.dataset.answer;
-    const sel=document.querySelector(`input[name=q${i+1}]:checked`);
-    if(sel && sel.value===correct) score++;
-  });
-  const percent=Math.round(score/qs.length*100);
-  document.getElementById("result").innerHTML=`<h3>Wynik Lenki: ${score}/${qs.length} (${percent}%)</h3>`;
-  localStorage.setItem("lenka_test01",JSON.stringify({score,percent,date:new Date()}));
-  document.getElementById("parentPanel").style.display="block";
-  document.getElementById("parentInfo").innerHTML=`Data: ${new Date().toLocaleString()}<br>Wynik: ${score}/${qs.length} (${percent}%)`;
+ clearInterval(t);
+ let score=0;
+ questions.forEach((q,i)=>{
+  const s=document.querySelector(`input[name=q${i}]:checked`);
+  if(s && s.value==q[2]) score++;
+ });
+ const percent=Math.round(score/20*100);
+ document.getElementById("result").innerHTML=
+ `<h3>Wynik: ${score}/20 (${percent}%)</h3><div class="star">${"⭐".repeat(Math.max(1,Math.ceil(percent/20)))}</div>`;
+ const h=JSON.parse(localStorage.getItem("lenka")||"[]");
+ h.push({date:new Date().toLocaleString(),score,percent});
+ localStorage.setItem("lenka",JSON.stringify(h));
+}
+
+function showParent(){
+ if(document.getElementById("pass").value!=="lenka"){alert("Złe hasło");return;}
+ document.getElementById("parentPanel").style.display="block";
+ const h=JSON.parse(localStorage.getItem("lenka")||"[]");
+ document.getElementById("parentInfo").innerHTML=h.map(x=>`${x.date} – ${x.score}/20 (${x.percent}%)`).join("<br>");
 }
 </script>
 </body>
