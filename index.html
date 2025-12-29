@@ -3,11 +3,12 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>TEST DLA LENKI - 03</title>
+<title>TEST DLA LENKI</title>
+
 <style>
 body{
   font-family: Arial, sans-serif;
-  background: linear-gradient(135deg, #ffb3c7, #ffd6a5);
+  background: linear-gradient(135deg,#ffb3c7,#ffd6a5);
   margin:0;
   padding:20px;
 }
@@ -36,18 +37,41 @@ button{
   color:#fff;
   font-size:16px;
   cursor:pointer;
+  margin-top:10px;
 }
 #timer{text-align:center;font-weight:bold;color:#b30059;}
-#result,#parentPanel{margin-top:20px;padding:15px;border-radius:12px;}
+#result,#parentPanel{
+  margin-top:20px;
+  padding:15px;
+  border-radius:12px;
+}
 #result{background:#e6fff0;}
-#parentPanel{background:#f0f0ff;display:none;}
+#parentPanel{
+  background:#f0f0ff;
+  display:none;
+}
 .star{font-size:26px;color:#ffcc00}
+.parent-btn{
+  background:#8b5cf6;
+  width:100%;
+}
+input[type=password]{
+  padding:8px;
+  width:100%;
+  margin-top:8px;
+  font-size:16px;
+}
 </style>
 </head>
+
 <body>
 <div class="container">
-<h1>⭐ TEST DLA LENKI – 03 ⭐</h1>
+
+<h1>⭐ TEST DLA LENKI ⭐</h1>
 <div id="timer">Czas: 15:00</div>
+
+<!-- ZAWSZE WIDOCZNY PRZYCISK -->
+<button class="parent-btn" onclick="openParent()">👨‍👩‍👧 Panel rodzica</button>
 
 <form id="quiz">
 
@@ -76,11 +100,15 @@ const questions = [
 ["Ile to (6 + 4) × 3?",["18","24","30"],1]
 ];
 
-document.write(questions.map((q,i)=>`
-<div class="question" data-answer="${q[2]}">
-${i+1}. ${q[0]}
-${q[1].map((a,j)=>`<label><input type="radio" name="q${i}" value="${j}"> ${a}</label>`).join("")}
-</div>`).join(""));
+document.write(
+  questions.map((q,i)=>`
+  <div class="question">
+  ${i+1}. ${q[0]}
+  ${q[1].map((a,j)=>`
+   <label><input type="radio" name="q${i}" value="${j}"> ${a}</label>
+  `).join("")}
+  </div>`).join("")
+);
 </script>
 
 <button type="button" onclick="finish()">Zakończ test</button>
@@ -88,20 +116,22 @@ ${q[1].map((a,j)=>`<label><input type="radio" name="q${i}" value="${j}"> ${a}</l
 
 <div id="result"></div>
 
+<!-- PANEL RODZICA -->
 <div id="parentPanel">
 <h3>🔐 Panel rodzica</h3>
 <input type="password" id="pass" placeholder="Hasło: lenka">
-<button onclick="showParent()">Pokaż</button>
+<button onclick="showParent()">Zaloguj</button>
 <div id="parentInfo"></div>
 </div>
+
 </div>
 
 <script>
 let time=900;
+const timer=document.getElementById("timer");
 const t=setInterval(()=>{
  time--;
- document.getElementById("timer").innerText=
- "Czas: "+Math.floor(time/60)+":"+String(time%60).padStart(2,"0");
+ timer.innerText="Czas: "+Math.floor(time/60)+":"+String(time%60).padStart(2,"0");
  if(time<=0){clearInterval(t);finish();}
 },1000);
 
@@ -113,23 +143,36 @@ function finish(){
   if(s && s.value==q[2]) score++;
  });
  const percent=Math.round(score/20*100);
+
  document.getElementById("result").innerHTML=
  `<h3>Wynik: ${score}/20 (${percent}%)</h3>
   <div class="star">${"⭐".repeat(Math.max(1,Math.ceil(percent/20)))}</div>`;
+
  const h=JSON.parse(localStorage.getItem("lenka")||"[]");
- h.push({date:new Date().toLocaleString(),test:"03",score,percent});
+ h.push({date:new Date().toLocaleString(),score,percent});
  localStorage.setItem("lenka",JSON.stringify(h));
+}
+
+function openParent(){
+ document.getElementById("parentPanel").style.display="block";
 }
 
 function showParent(){
  if(document.getElementById("pass").value!=="lenka"){
-  alert("Złe hasło"); return;
+  alert("Nieprawidłowe hasło");
+  return;
  }
- document.getElementById("parentPanel").style.display="block";
  const h=JSON.parse(localStorage.getItem("lenka")||"[]");
- document.getElementById("parentInfo").innerHTML =
- "<b>Historia wyników:</b><br>" +
- h.map(x=>`${x.date} – Test ${x.test || "?"}: ${x.score}/20 (${x.percent}%)`).join("<br>");
+ if(h.length===0){
+  document.getElementById("parentInfo").innerHTML="Brak wyników.";
+  return;
+ }
+ const first=h[0].percent;
+ const last=h[h.length-1].percent;
+ document.getElementById("parentInfo").innerHTML=
+ "<b>Historia wyników:</b><br>"+
+ h.map(x=>`${x.date} – ${x.score}/20 (${x.percent}%)`).join("<br>")+
+ `<br><br><b>Postęp:</b> ${first}% → ${last}%`;
 }
 </script>
 
