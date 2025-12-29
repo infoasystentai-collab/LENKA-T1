@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>TEST DLA LENKI - 02</title>
+<title>TEST DLA LENKI - 03</title>
 <style>
 body{
   font-family: Arial, sans-serif;
@@ -46,33 +46,34 @@ button{
 </head>
 <body>
 <div class="container">
-<h1>⭐ TEST DLA LENKI – 02 ⭐</h1>
+<h1>⭐ TEST DLA LENKI – 03 ⭐</h1>
 <div id="timer">Czas: 15:00</div>
 
 <form id="quiz">
-<!-- 20 PYTAŃ – łatwe -->
+
 <script>
 const questions = [
-["Ile to 7 + 2?",["8","9","10"],1],
-["Ile to 12 − 5?",["7","6","8"],0],
-["Które zwierzę lata?",["pies","kot","ptak"],2],
-["Ile nóg ma pies?",["2","4","6"],1],
-["Jaki kolor ma trawa?",["zielony","niebieski","czerwony"],0],
-["Ile to 5 × 2?",["8","9","10"],2],
-["Która liczba jest większa?",["3","5","4"],1],
-["Co pijemy gdy jesteśmy spragnieni?",["wodę","piasek","kamień"],0],
-["Ile to 10 + 10?",["15","20","25"],1],
-["Która pora roku jest zimna?",["lato","wiosna","zima"],2],
-["Jakie zwierzę daje jajka?",["kura","pies","koń"],0],
-["Ile to 6 + 6?",["10","12","14"],1],
-["Który kształt ma 4 boki?",["trójkąt","koło","kwadrat"],2],
-["Dzień po sobocie to:",["niedziela","piątek","czwartek"],0],
-["Ile palców mamy razem u rąk?",["8","10","12"],1],
-["Co świeci na niebie w dzień?",["księżyc","gwiazdy","słońce"],2],
-["Ile to 4 + 4?",["8","7","9"],0],
-["Miesiąc świąt Bożego Narodzenia:",["listopad","grudzień","styczeń"],1],
-["Do pisania używamy:",["ołówek","but","łyżka"],0],
-["Ile to 2 × 4?",["6","10","8"],2]
+["Ile to 48 ÷ 6?",["6","7","8"],2],
+["Która liczba jest nieparzysta?",["12","15","20"],1],
+["Ile minut ma 1 godzina?",["30","60","100"],1],
+["Które zwierzę jest ssakiem?",["żaba","wąż","delfin"],2],
+["Ile to 7 × 8?",["54","56","64"],1],
+["Który ułamek jest większy?",["1/4","1/2","1/8"],1],
+["Który kontynent jest największy?",["Europa","Afryka","Azja"],2],
+["Ile krawędzi ma sześcian?",["8","12","6"],1],
+["Które słowo jest rzeczownikiem?",["biega","dom","szybko"],1],
+["Ile to 250 + 180?",["420","430","440"],1],
+
+["Która planeta jest najbliżej Słońca?",["Ziemia","Merkury","Mars"],1],
+["Ile boków ma pięciokąt?",["4","5","6"],1],
+["Ile to 9 × 7?",["56","63","72"],1],
+["Która liczba jest najmniejsza?",["0,5","0,25","0,75"],1],
+["Który cień jest dłuższy?",["rano","w południe","w nocy"],0],
+["Ile to 1000 − 375?",["625","635","600"],0],
+["Który gaz jest potrzebny do oddychania?",["azot","tlen","dwutlenek węgla"],1],
+["Ile dni ma rok przestępny?",["365","366","364"],1],
+["Która figura ma największe pole?",["kwadrat 4×4","prostokąt 2×10","kwadrat 3×3"],1],
+["Ile to (6 + 4) × 3?",["18","24","30"],1]
 ];
 
 document.write(questions.map((q,i)=>`
@@ -99,7 +100,8 @@ ${q[1].map((a,j)=>`<label><input type="radio" name="q${i}" value="${j}"> ${a}</l
 let time=900;
 const t=setInterval(()=>{
  time--;
- document.getElementById("timer").innerText="Czas: "+Math.floor(time/60)+":"+String(time%60).padStart(2,"0");
+ document.getElementById("timer").innerText=
+ "Czas: "+Math.floor(time/60)+":"+String(time%60).padStart(2,"0");
  if(time<=0){clearInterval(t);finish();}
 },1000);
 
@@ -112,18 +114,24 @@ function finish(){
  });
  const percent=Math.round(score/20*100);
  document.getElementById("result").innerHTML=
- `<h3>Wynik: ${score}/20 (${percent}%)</h3><div class="star">${"⭐".repeat(Math.max(1,Math.ceil(percent/20)))}</div>`;
+ `<h3>Wynik: ${score}/20 (${percent}%)</h3>
+  <div class="star">${"⭐".repeat(Math.max(1,Math.ceil(percent/20)))}</div>`;
  const h=JSON.parse(localStorage.getItem("lenka")||"[]");
- h.push({date:new Date().toLocaleString(),score,percent});
+ h.push({date:new Date().toLocaleString(),test:"03",score,percent});
  localStorage.setItem("lenka",JSON.stringify(h));
 }
 
 function showParent(){
- if(document.getElementById("pass").value!=="lenka"){alert("Złe hasło");return;}
+ if(document.getElementById("pass").value!=="lenka"){
+  alert("Złe hasło"); return;
+ }
  document.getElementById("parentPanel").style.display="block";
  const h=JSON.parse(localStorage.getItem("lenka")||"[]");
- document.getElementById("parentInfo").innerHTML=h.map(x=>`${x.date} – ${x.score}/20 (${x.percent}%)`).join("<br>");
+ document.getElementById("parentInfo").innerHTML =
+ "<b>Historia wyników:</b><br>" +
+ h.map(x=>`${x.date} – Test ${x.test || "?"}: ${x.score}/20 (${x.percent}%)`).join("<br>");
 }
 </script>
+
 </body>
 </html>
