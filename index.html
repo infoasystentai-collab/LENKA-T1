@@ -1,0 +1,264 @@
+<!doctype html>
+<html lang="pl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Test 20 pytań — gotowy</title>
+<style>
+  :root{--bg:#f4f6f8;--card:#fff;--accent:#0066cc}
+  body{font-family:Inter,Arial,Helvetica,sans-serif;background:var(--bg);margin:0;padding:18px;color:#111}
+  .wrap{max-width:980px;margin:0 auto}
+  header{display:flex;justify-content:space-between;align-items:center;gap:10px}
+  h1{font-size:1.3rem;margin:0;color:var(--accent)}
+  #timer{font-weight:700;color:#b30000}
+  .card{background:var(--card);border-radius:10px;padding:16px;margin-top:12px;box-shadow:0 4px 12px rgba(0,0,0,0.06)}
+  .question{padding:10px;border-radius:8px;border:1px solid #eceff3;margin-bottom:12px}
+  .qnum{font-weight:700;margin-bottom:6px}
+  label{display:block;margin:6px 0;cursor:pointer}
+  .controls{display:flex;gap:8px;flex-wrap:wrap;justify-content:center;margin-top:12px}
+  button{padding:8px 12px;border-radius:8px;border:1px solid rgba(0,0,0,0.08);background:#fff;cursor:pointer}
+  button.primary{background:var(--accent);color:#fff;border:none}
+  #resultBox,#reviewBox,#finalBox{display:none;margin-top:16px;padding:12px;border-radius:8px}
+  #resultBox{background:#eef7ff;border:1px solid #cfe8ff}
+  #reviewBox{background:#fff8e6;border:1px solid #f1e0b9}
+  #finalBox{background:#e8ffe9;border:1px solid #bfe8c8}
+  .wrongItem{border:1px dashed #e0a0a0;padding:8px;margin:8px 0;border-radius:6px;background:#fff}
+  @media (max-width:600px){
+    header{flex-direction:column;align-items:flex-start}
+    .controls{flex-direction:column}
+    button{width:100%}
+  }
+  .small{font-size:0.9rem;color:#444}
+  .export{margin-left:8px}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div>
+      <h1>Test wiedzy — 20 pytań</h1>
+      <div class="small">Matematyka (poziom podwyższony) 10 pytań • Wiedza ogólna 5 pytań • Historia 5 pytań</div>
+    </div>
+    <div id="timer">15:00</div>
+  </header>
+
+  <main class="card" id="quizCard">
+    <form id="quizForm" autocomplete="off"></form>
+
+    <div class="controls">
+      <button id="finishBtn" class="primary" type="button">Zakończ test</button>
+      <button id="clearBtn" type="button">Wyczyść odpowiedzi</button>
+      <button id="exportBtn" type="button">Eksport wyników (CSV)</button>
+    </div>
+
+    <div id="resultBox"></div>
+    <div id="reviewBox"></div>
+    <div id="finalBox"></div>
+  </main>
+
+  <footer class="small" style="text-align:center;margin-top:18px">
+    Zapis wyników w pamięci przeglądarki (localStorage). Strona responsywna — wygodna na smartfonach.
+  </footer>
+</div>
+
+<script>
+// --- Nowe pytania (całkowicie nowe) ---
+const questions = [
+  // Matematyka (10 - podwyższony)
+  {q:"1. Oblicz: 125 × 24 =", choices:["3000","2500","3100","3200"], correct:0},
+  {q:"2. Ile to: 7/8 z 64 ?", choices:["49","56","58","42"], correct:1},
+  {q:"3. Oblicz pierwiastek z 729.", choices:["25","26","27","28"], correct:2},
+  {q:"4. Rozwiąż: 3x + 5 = 26. x =", choices:["6","7","8","9"], correct:1},
+  {q:"5. Ile wynosi 15% z 800?", choices:["100","110","120","130"], correct:2},
+  {q:"6. Obwód koła o promieniu 7 (π≈3.14) ≈", choices:["43.96","21.98","87.92","35.5"], correct:0},
+  {q:"7. Zapisz 0.625 jako ułamek zwykły.", choices:["5/8","3/5","7/11","4/7"], correct:0},
+  {q:"8. Ile to: 2^5 × 3^2 ?", choices:["288","192","96","144"], correct:1},
+  {q:"9. Suma kolejnych liczb: 9 + 10 + 11 + 12 = ?", choices:["40","42","44","38"], correct:2},
+  {q:"10. Ile wynosi 45 ÷ 0.5 ?", choices:["22.5","90","67.5","45"], correct:1},
+
+  // Wiedza ogólna (5 - łatwiejsze)
+  {q:"11. Najwyższy szczyt Gór Świętokrzyskich to:", choices:["Łysica","Łysa Góra","Tarnica","Łysa Szczyt"], correct:0},
+  {q:"12. Jaka jest stolica Polski?", choices:["Kraków","Gdańsk","Warszawa","Wrocław"], correct:2},
+  {q:"13. Które zwierzę oddycha skrzelami?", choices:["Kot","Pstrąg","Pies","Słoń"], correct:1},
+  {q:"14. Co mierzy termometr?", choices:["Ciśnienie","Temperaturę","Prędkość","Moc"], correct:1},
+  {q:"15. Który kontynent nazywamy „najzimniejszym” (większa część pokryta lodem)?", choices:["Antarktyda","Azja","Europa","Afryka"], correct:0},
+
+  // Historia (5 - łatwiejsze)
+  {q:"16. Kto był królem Polski w czasie bitwy pod Grunwaldem?", choices:["Kazimierz Wielki","Władysław Jagiełło","Bolesław Chrobry","Jan III Sobieski"], correct:1},
+  {q:"17. W którym roku miał miejsce chrzest Polski?", choices:["966","1025","1386","1410"], correct:0},
+  {q:"18. Kto napisał \"Pan Tadeusz\"?", choices:["Henryk Sienkiewicz","Adam Mickiewicz","Juliusz Słowacki","Maria Konopnicka"], correct:1},
+  {q:"19. Gdzie toczyła się bitwa pod Wiedniem (1683)?", choices:["Polska","Watykan","Wiedeń (Austria)","Prusy"], correct:2},
+  {q:"20. Co to była Solidarność?", choices:["Organizacja sportowa","Ruch społeczny i związek zawodowy","Partia polityczna","Instytucja finansowa"], correct:1}
+];
+
+// -- Build form
+const form = document.getElementById('quizForm');
+questions.forEach((q,i) => {
+  const div = document.createElement('div');
+  div.className = 'question';
+  div.id = 'q'+i;
+  div.dataset.correct = questions[i].correct;
+  div.innerHTML = `<div class="qnum"><strong>${q.q}</strong></div>
+    ${q.choices.map((c,ci)=>`<label><input type="radio" name="q${i}" value="${ci}"> ${String.fromCharCode(65+ci)}) ${c}</label>`).join('')}`;
+  form.appendChild(div);
+});
+
+// --- Timer 15 minut ---
+let timeLeft = 15*60;
+const timerEl = document.getElementById('timer');
+const tick = () => {
+  timeLeft--;
+  const m = Math.floor(timeLeft/60).toString().padStart(2,'0');
+  const s = (timeLeft%60).toString().padStart(2,'0');
+  timerEl.textContent = `${m}:${s}`;
+  if(timeLeft<=0){
+    clearInterval(timerInterval);
+    finishTest();
+  }
+};
+let timerInterval = setInterval(tick,1000);
+
+// --- Save/Load answers to localStorage ---
+const STORAGE_KEY = 'test20_v2_answers';
+function saveProgress(){
+  const answers = [];
+  questions.forEach((q,i)=>{
+    const sel = document.querySelector(`input[name="q${i}"]:checked`);
+    answers[i] = sel ? parseInt(sel.value,10) : null;
+  });
+  localStorage.setItem(STORAGE_KEY, JSON.stringify({answers, timeLeft}));
+}
+
+function loadProgress(){
+  const data = JSON.parse(localStorage.getItem(STORAGE_KEY) || 'null');
+  if(!data) return;
+  data.answers.forEach((val,i)=>{
+    if(val!==null){
+      const el = document.querySelector(`input[name="q${i}"][value="${val}"]`);
+      if(el) el.checked=true;
+    }
+  });
+  if(typeof data.timeLeft === 'number') { timeLeft = data.timeLeft; }
+}
+window.addEventListener('beforeunload', saveProgress);
+loadProgress();
+
+// Autosave every 5 seconds
+setInterval(saveProgress,5000);
+
+// --- Finish test, show wrong answers, allow correction, compute final score ---
+const resultBox = document.getElementById('resultBox');
+const reviewBox = document.getElementById('reviewBox');
+const finalBox = document.getElementById('finalBox');
+
+function finishTest(){
+  clearInterval(timerInterval);
+  saveProgress();
+  // compute score
+  let score = 0;
+  const wrong = [];
+  const answers = [];
+  questions.forEach((q,i)=>{
+    const sel = document.querySelector(`input[name="q${i}"]:checked`);
+    const val = sel ? parseInt(sel.value,10) : null;
+    answers[i] = val;
+    if(val===q.correct) score++; else wrong.push(i);
+  });
+
+  const percent = Math.round((score/questions.length)*100);
+  resultBox.style.display='block';
+  resultBox.innerHTML = `<h3>Wynik wstępny: ${score}/${questions.length} (${percent}%)</h3>
+    <p class="small">Poniżej widzisz pytania z niepoprawnymi odpowiedziami — możesz je poprawić i zatwierdzić.</p>`;
+
+  // save results to localStorage (history)
+  const history = JSON.parse(localStorage.getItem('test20_results')||'[]');
+  const now = new Date().toISOString();
+  history.push({date:now,score,percent,answers});
+  localStorage.setItem('test20_results', JSON.stringify(history));
+
+  // build review list
+  if(wrong.length===0){
+    reviewBox.style.display='block';
+    reviewBox.innerHTML = `<p class="small">Wszystkie odpowiedzi poprawne — gratulacje!</p>`;
+    showFinal(score,answers);
+    return;
+  }
+  reviewBox.style.display='block';
+  let html = `<h3>Pytania z błędami (${wrong.length}) — popraw i kliknij 'Zatwierdź poprawki'</h3>`;
+  wrong.forEach(i=>{
+    const q = questions[i];
+    html += `<div class="wrongItem"><div><strong>Pytanie ${i+1}:</strong> ${q.q}</div>`;
+    q.choices.forEach((ch,ci)=>{
+      html += `<label><input type="radio" name="fix-${i}" value="${ci}"> ${String.fromCharCode(65+ci)}) ${ch}</label>`;
+    });
+    html += `</div>`;
+  });
+  html += `<div style="margin-top:8px"><button id="applyFixes">Zatwierdź poprawki</button></div>`;
+  reviewBox.innerHTML = html;
+  document.getElementById('applyFixes').addEventListener('click',()=>{
+    applyFixes(wrong,answers);
+  });
+}
+
+function applyFixes(wrong,prevAnswers){
+  let corrected=0;
+  wrong.forEach(i=>{
+    const sel = document.querySelector(`input[name="fix-${i}"]:checked`);
+    if(sel){
+      const val = parseInt(sel.value,10);
+      prevAnswers[i]=val;
+      // mark on main form
+      const mainSel = document.querySelector(`input[name="q${i}"][value="${val}"]`);
+      if(mainSel) mainSel.checked = true;
+      if(val===questions[i].correct) corrected++;
+    }
+  });
+  // recalc final
+  let finalScore=0;
+  prevAnswers.forEach((v,idx)=>{ if(v===questions[idx].correct) finalScore++; });
+  const percentFinal = Math.round((finalScore/questions.length)*100);
+  finalBox.style.display='block';
+  finalBox.innerHTML = `<h3>Wynik końcowy po poprawkach: ${finalScore}/${questions.length} (${percentFinal}%)</h3>
+    <p class="small">Poprawionych uprzednio błędnych pytań: ${corrected}.</p>`;
+  // save final result into history as well
+  const history = JSON.parse(localStorage.getItem('test20_results')||'[]');
+  history.push({date:new Date().toISOString(),score:finalScore,percent:percentFinal,answers:prevAnswers});
+  localStorage.setItem('test20_results', JSON.stringify(history));
+  // scroll into view
+  finalBox.scrollIntoView({behavior:'smooth'});
+}
+
+// --- Export results (CSV) ---
+document.getElementById('exportBtn').addEventListener('click',()=>{
+  const history = JSON.parse(localStorage.getItem('test20_results')||'[]');
+  if(history.length===0){ alert('Brak zapisanych wyników.'); return; }
+  let csv = 'date,score,percent,answers\\n';
+  history.forEach(h=>{
+    csv += `${h.date},${h.score},${h.percent},"${JSON.stringify(h.answers)}"\\n`;
+  });
+  const blob = new Blob([csv], {type:'text/csv;charset=utf-8;'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = 'test20_results.csv';
+  document.body.appendChild(a); a.click();
+  a.remove();
+});
+
+// --- Buttons
+document.getElementById('finishBtn').addEventListener('click', finishTest);
+document.getElementById('clearBtn').addEventListener('click', ()=>{
+  if(!confirm('Wyczyścić wszystkie odpowiedzi i historię z localStorage?')) return;
+  document.querySelectorAll('input[type=radio]').forEach(i=>i.checked=false);
+  localStorage.removeItem(STORAGE_KEY);
+  localStorage.removeItem('test20_results');
+  document.getElementById('resultBox').style.display='none';
+  document.getElementById('reviewBox').style.display='none';
+  document.getElementById('finalBox').style.display='none';
+});
+
+// ensure timer and autosave continue after load
+setInterval(saveProgress,5000);
+
+</script>
+</body>
+</html>
