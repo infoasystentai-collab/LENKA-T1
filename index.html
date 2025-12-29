@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>TEST DLA LENKI</title>
+<title>TESTY DLA LENKI</title>
 
 <style>
 body{
@@ -21,24 +21,20 @@ body{
   box-shadow:0 6px 20px rgba(0,0,0,0.15);
 }
 h1{text-align:center;color:#d63384;}
+select,button,input{
+  width:100%;
+  padding:10px;
+  margin-top:10px;
+  font-size:16px;
+}
 .question{
-  margin:15px 0;
+  margin:12px 0;
   padding:12px;
   border:1px solid #f1c6d8;
   border-radius:10px;
   background:#fff7fb;
 }
-label{display:block;margin:6px 0;}
-button{
-  padding:10px 16px;
-  border:none;
-  border-radius:10px;
-  background:#ff7a00;
-  color:#fff;
-  font-size:16px;
-  cursor:pointer;
-  margin-top:10px;
-}
+label{display:block;margin:5px 0;}
 #timer{text-align:center;font-weight:bold;color:#b30059;}
 #result,#parentPanel{
   margin-top:20px;
@@ -46,80 +42,36 @@ button{
   border-radius:12px;
 }
 #result{background:#e6fff0;}
-#parentPanel{
-  background:#f0f0ff;
-  display:none;
-}
+#parentPanel{background:#f0f0ff;display:none;}
 .star{font-size:26px;color:#ffcc00}
-.parent-btn{
-  background:#8b5cf6;
-  width:100%;
-}
-input[type=password]{
-  padding:8px;
-  width:100%;
-  margin-top:8px;
-  font-size:16px;
-}
+.parent-btn{background:#8b5cf6;color:#fff}
 </style>
 </head>
 
 <body>
 <div class="container">
 
-<h1>⭐ TEST DLA LENKI ⭐</h1>
+<h1>⭐ TESTY DLA LENKI ⭐</h1>
+
+<select id="testSelect" onchange="loadTest()">
+  <option value="1">Test 01 – łatwy</option>
+  <option value="2">Test 02 – średni</option>
+  <option value="3">Test 03 – trudniejszy</option>
+</select>
+
 <div id="timer">Czas: 15:00</div>
 
-<!-- ZAWSZE WIDOCZNY PRZYCISK -->
 <button class="parent-btn" onclick="openParent()">👨‍👩‍👧 Panel rodzica</button>
 
-<form id="quiz">
+<form id="quiz"></form>
 
-<script>
-const questions = [
-["Ile to 48 ÷ 6?",["6","7","8"],2],
-["Która liczba jest nieparzysta?",["12","15","20"],1],
-["Ile minut ma 1 godzina?",["30","60","100"],1],
-["Które zwierzę jest ssakiem?",["żaba","wąż","delfin"],2],
-["Ile to 7 × 8?",["54","56","64"],1],
-["Który ułamek jest większy?",["1/4","1/2","1/8"],1],
-["Który kontynent jest największy?",["Europa","Afryka","Azja"],2],
-["Ile krawędzi ma sześcian?",["8","12","6"],1],
-["Które słowo jest rzeczownikiem?",["biega","dom","szybko"],1],
-["Ile to 250 + 180?",["420","430","440"],1],
-
-["Która planeta jest najbliżej Słońca?",["Ziemia","Merkury","Mars"],1],
-["Ile boków ma pięciokąt?",["4","5","6"],1],
-["Ile to 9 × 7?",["56","63","72"],1],
-["Która liczba jest najmniejsza?",["0,5","0,25","0,75"],1],
-["Który cień jest dłuższy?",["rano","w południe","w nocy"],0],
-["Ile to 1000 − 375?",["625","635","600"],0],
-["Który gaz jest potrzebny do oddychania?",["azot","tlen","dwutlenek węgla"],1],
-["Ile dni ma rok przestępny?",["365","366","364"],1],
-["Która figura ma największe pole?",["kwadrat 4×4","prostokąt 2×10","kwadrat 3×3"],1],
-["Ile to (6 + 4) × 3?",["18","24","30"],1]
-];
-
-document.write(
-  questions.map((q,i)=>`
-  <div class="question">
-  ${i+1}. ${q[0]}
-  ${q[1].map((a,j)=>`
-   <label><input type="radio" name="q${i}" value="${j}"> ${a}</label>
-  `).join("")}
-  </div>`).join("")
-);
-</script>
-
-<button type="button" onclick="finish()">Zakończ test</button>
-</form>
+<button onclick="finish()">Zakończ test</button>
 
 <div id="result"></div>
 
-<!-- PANEL RODZICA -->
 <div id="parentPanel">
 <h3>🔐 Panel rodzica</h3>
-<input type="password" id="pass" placeholder="Hasło: lenka">
+<input type="password" id="pass" placeholder="Wpisz hasło">
 <button onclick="showParent()">Zaloguj</button>
 <div id="parentInfo"></div>
 </div>
@@ -127,29 +79,113 @@ document.write(
 </div>
 
 <script>
-let time=900;
-const timer=document.getElementById("timer");
-const t=setInterval(()=>{
- time--;
- timer.innerText="Czas: "+Math.floor(time/60)+":"+String(time%60).padStart(2,"0");
- if(time<=0){clearInterval(t);finish();}
-},1000);
+const tests = {
+1:[
+["Ile to 6+4?",["8","10","12"],1],
+["Ile dni ma tydzień?",["5","7","10"],1],
+["Które zwierzę lata?",["pies","ptak","kot"],1],
+["Kolor nieba?",["zielony","niebieski","czerwony"],1],
+["Ile to 5×2?",["10","12","8"],0],
+["Ile nóg ma kot?",["2","4","6"],1],
+["Ile to 9+1?",["8","10","11"],1],
+["Co pijemy?",["wodę","piasek","kamień"],0],
+["Która pora roku jest ciepła?",["zima","lato","jesień"],1],
+["Ile palców u jednej ręki?",["4","5","6"],1],
+["Ile to 3+3?",["5","6","7"],1],
+["Co świeci w dzień?",["księżyc","słońce","gwiazdy"],1],
+["Ile boków ma kwadrat?",["3","4","5"],1],
+["Ile to 8+2?",["10","12","9"],0],
+["Jakie zwierzę daje mleko?",["krowa","pies","kot"],0],
+["Ile to 7+1?",["8","9","10"],0],
+["Który owoc jest czerwony?",["banan","jabłko","gruszka"],1],
+["Ile to 4×2?",["6","8","10"],1],
+["Dzień po piątku?",["sobota","niedziela","czwartek"],0],
+["Ile to 10−5?",["3","5","6"],1]
+],
+2:[
+["Ile to 12×2?",["22","24","26"],1],
+["Która liczba jest nieparzysta?",["10","11","12"],1],
+["Ile minut ma godzina?",["30","60","90"],1],
+["Ile to 9×6?",["54","56","60"],0],
+["Który kontynent jest w Europie?",["Polska","Azja","Europa"],2],
+["Ile to 100−45?",["45","55","65"],1],
+["Która figura ma 3 boki?",["kwadrat","trójkąt","koło"],1],
+["Ile to 7×7?",["42","49","56"],1],
+["Która liczba jest większa?",["0,5","0,25","0,75"],2],
+["Ile to 300+200?",["400","500","600"],1],
+["Które zwierzę jest ssakiem?",["żaba","delfin","ryba"],1],
+["Ile boków ma sześciokąt?",["5","6","7"],1],
+["Ile to 8×4?",["32","28","36"],0],
+["Która planeta jest najbliżej Słońca?",["Ziemia","Merkury","Mars"],1],
+["Ile to 90−30?",["50","60","70"],1],
+["Która liczba jest najmniejsza?",["1/2","1/4","1/8"],2],
+["Ile to 6×5?",["25","30","35"],1],
+["Która pora dnia jest rano?",["wieczór","noc","poranek"],2],
+["Ile to 15+15?",["20","25","30"],2],
+["Ile dni ma rok?",["360","365","370"],1]
+],
+3:[
+["Ile to (8+4)×3?",["24","36","48"],1],
+["Która liczba jest podzielna przez 3?",["14","21","25"],1],
+["Ile to 144÷12?",["10","12","14"],1],
+["Który ułamek jest największy?",["1/3","1/2","1/4"],1],
+["Ile to 7²?",["42","49","56"],1],
+["Która liczba jest pierwsza?",["9","11","15"],1],
+["Ile to 1000−275?",["725","735","700"],0],
+["Ile krawędzi ma sześcian?",["8","12","6"],1],
+["Która figura ma największe pole?",["4×4","2×10","3×3"],1],
+["Ile to 18÷3?",["5","6","7"],1],
+["Która planeta jest największa?",["Ziemia","Jowisz","Mars"],1],
+["Ile to 9×8?",["64","72","81"],1],
+["Która liczba jest mniejsza?",["0,4","0,35","0,5"],1],
+["Ile to 250+375?",["625","600","650"],0],
+["Który gaz jest potrzebny do oddychania?",["tlen","azot","hel"],0],
+["Ile dni ma rok przestępny?",["365","366","364"],1],
+["Ile to 6×(5+1)?",["30","36","42"],1],
+["Która liczba NIE jest parzysta?",["8","14","15"],2],
+["Ile to 81÷9?",["7","8","9"],2],
+["Ile to 2³?",["6","8","10"],1]
+]
+};
+
+let currentTest=1, time=900, timerInt;
+
+function loadTest(){
+ currentTest=document.getElementById("testSelect").value;
+ document.getElementById("quiz").innerHTML="";
+ tests[currentTest].forEach((q,i)=>{
+  document.getElementById("quiz").innerHTML+=
+  `<div class="question">${i+1}. ${q[0]}${
+   q[1].map((a,j)=>`<label><input type="radio" name="q${i}" value="${j}"> ${a}</label>`).join("")
+  }</div>`;
+ });
+ resetTimer();
+}
+
+function resetTimer(){
+ clearInterval(timerInt);
+ time=900;
+ timerInt=setInterval(()=>{
+  time--;
+  document.getElementById("timer").innerText=
+  "Czas: "+Math.floor(time/60)+":"+String(time%60).padStart(2,"0");
+  if(time<=0){clearInterval(timerInt);finish();}
+ },1000);
+}
 
 function finish(){
- clearInterval(t);
+ clearInterval(timerInt);
  let score=0;
- questions.forEach((q,i)=>{
+ tests[currentTest].forEach((q,i)=>{
   const s=document.querySelector(`input[name=q${i}]:checked`);
   if(s && s.value==q[2]) score++;
  });
  const percent=Math.round(score/20*100);
-
  document.getElementById("result").innerHTML=
- `<h3>Wynik: ${score}/20 (${percent}%)</h3>
-  <div class="star">${"⭐".repeat(Math.max(1,Math.ceil(percent/20)))}</div>`;
-
+ `<h3>Wynik Test ${currentTest}: ${score}/20 (${percent}%)</h3>
+ <div class="star">${"⭐".repeat(Math.max(1,Math.ceil(percent/20)))}</div>`;
  const h=JSON.parse(localStorage.getItem("lenka")||"[]");
- h.push({date:new Date().toLocaleString(),score,percent});
+ h.push({date:new Date().toLocaleString(),test:currentTest,score,percent});
  localStorage.setItem("lenka",JSON.stringify(h));
 }
 
@@ -158,22 +194,16 @@ function openParent(){
 }
 
 function showParent(){
- if(document.getElementById("pass").value!=="lenka"){
-  alert("Nieprawidłowe hasło");
-  return;
- }
+ if(document.getElementById("pass").value!=="lenka"){alert("Błędne hasło");return;}
  const h=JSON.parse(localStorage.getItem("lenka")||"[]");
- if(h.length===0){
-  document.getElementById("parentInfo").innerHTML="Brak wyników.";
-  return;
- }
- const first=h[0].percent;
- const last=h[h.length-1].percent;
+ if(!h.length){document.getElementById("parentInfo").innerText="Brak danych";return;}
+ const first=h[0].percent, last=h[h.length-1].percent;
  document.getElementById("parentInfo").innerHTML=
- "<b>Historia wyników:</b><br>"+
- h.map(x=>`${x.date} – ${x.score}/20 (${x.percent}%)`).join("<br>")+
+ "<b>Historia:</b><br>"+h.map(x=>`Test ${x.test} – ${x.score}/20 (${x.percent}%)`).join("<br>")+
  `<br><br><b>Postęp:</b> ${first}% → ${last}%`;
 }
+
+loadTest();
 </script>
 
 </body>
